@@ -127,6 +127,14 @@ def _calculate_dimensions(structure: str, volume_m3: float) -> str:
     return f"{depth:.1f} m depth \u00d7 {radius * 2:.1f} m diameter"
 
 
+# Short-name aliases for the /cost endpoint
+_TYPE_ALIASES = {
+    "pit": "Recharge pit",
+    "trench": "Recharge trench",
+    "shaft": "Recharge shaft",
+    "tank": "Storage tank",
+}
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -138,10 +146,10 @@ def calculate():
     Calculate runoff and harvested water potential.
 
     Request body (JSON):
-      roofArea   float   Roof area in m²
-      location   str     City / location name
-      dwellers   int     Number of dwellers
-      rainfall   float?  Annual rainfall in mm (optional; derived from location if absent)
+      roofArea / roof_area   float   Roof area in m²
+      location               str     City / location name
+      dwellers               int     Number of dwellers
+      rainfall               float?  Annual rainfall in mm (optional; derived from location if absent)
 
     Response (JSON):
       annualRainfallMm, runoffLiters, harvestedWaterLiters,
@@ -149,7 +157,14 @@ def calculate():
       aquifer, groundwaterDepth, policy
     """
     body = request.get_json(force=True) or {}
-    roof_area = float(body.get("roofArea", 100))
+    # Accept both camelCase and snake_case for roof area
+    raw_area = body.get("roofArea", body.get("roof_area", 100))
+    try:
+        roof_area = float(raw_area)
+    except (TypeError, ValueError):
+        return jsonify({"error": "roofArea must be a number"}), 400
+    if roof_area <= 0:
+        return jsonify({"error": "roofArea must be greater than 0"}), 400
     location = str(body.get("location", ""))
     dwellers = max(1, int(body.get("dwellers", 4)))
     rainfall_override = body.get("rainfall")
@@ -186,14 +201,24 @@ def recommend():
     Recommend a recharge structure and dimensions.
 
     Request body (JSON):
-      openSpace   float   Available open space in m²
-      runoff      float   Annual runoff in litres
+      openSpace / roof_area   float   Available open space in m² (or roof area as proxy)
+      runoff                  float   Annual runoff in litres
 
     Response (JSON):
       structure, dimensions, rechargeVolumeM3
     """
     body = request.get_json(force=True) or {}
-    open_space = float(body.get("openSpace", 10))
+    # Accept roof_area as an alias — estimate open space as 25% of roof area
+    raw_space = body.get("openSpace", body.get("open_space"))
+    raw_roof = body.get("roofArea", body.get("roof_area"))
+    if raw_space is not None:
+        open_space = float(raw_space)
+    elif raw_roof is not None:
+        open_space = float(raw_roof) * 0.25
+    else:
+        open_space = 10.0
+    if open_space < 0:
+        return jsonify({"error": "openSpace must be 0 or greater"}), 400
     runoff_liters = float(body.get("runoff", 50000))
 
     structure = _decide_structure(open_space)
@@ -215,15 +240,17 @@ def cost():
     Estimate installation cost and cost-benefit analysis.
 
     Request body (JSON):
-      structure   str     Structure type (e.g. "Recharge pit")
-      runoff      float   Annual runoff in litres
+      structure / type   str     Structure type (full name or short alias: pit/trench/shaft/tank)
+      runoff             float   Annual runoff in litres
 
     Response (JSON):
       structure, costRs, annualSavingsRs, paybackYears,
       environmentalBenefitLiters, carbonOffsetKg
     """
     body = request.get_json(force=True) or {}
-    structure = body.get("structure", "Recharge pit")
+    raw_type = body.get("structure", body.get("type", "Recharge pit"))
+    # Resolve short aliases (e.g. "pit" → "Recharge pit")
+    structure = _TYPE_ALIASES.get(str(raw_type).lower(), raw_type)
     runoff_liters = float(body.get("runoff", 50000))
 
     base_cost = STRUCTURE_COSTS.get(structure, 5000)
