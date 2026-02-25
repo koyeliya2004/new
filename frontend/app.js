@@ -128,6 +128,25 @@ const translations = {
   },
 };
 
+// Base URL for the Flask backend — falls back gracefully if the backend is offline
+const API_BASE = "http://localhost:5000";
+
+/**
+ * Call the Flask API. Returns parsed JSON on success or null on any network/HTTP error,
+ * allowing the app to continue with local calculations.
+ */
+const apiFetch = async (path, method = "GET", body = null) => {
+  try {
+    const opts = { method, headers: { "Content-Type": "application/json" } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${API_BASE}${path}`, opts);
+    if (res.ok) return res.json();
+  } catch {
+    // Backend not available — local fallback will be used
+  }
+  return null;
+};
+
 const form = document.getElementById("assessment-form");
 const mapHint = document.getElementById("map-hint");
 const roofAreaInput = document.getElementById("roof-area");
@@ -262,27 +281,52 @@ const updateImpact = (credits) => {
   document.getElementById("impact").textContent = `You and 40 neighbors have recharged enough to fill ${pools} Olympic pools.`;
 };
 
-const generateResults = () => {
+const generateResults = async () => {
   const name = document.getElementById("name").value.trim();
   const location = locationInput.value.trim();
   const dwellers = Number.parseInt(document.getElementById("dwellers").value, 10) || 1;
   const roofArea = Number.parseFloat(roofAreaInput.value);
   const openSpace = Number.parseFloat(openSpaceInput.value);
-  const rainfall = rainfallInput.value ? Number.parseInt(rainfallInput.value, 10) : deriveRainfall(location);
-  const aquifer = pickFrom(lookupSets.aquifers, hashSeed(location));
-  const depth = deriveGroundwaterDepth(location);
-  const runoffCoefficient = 0.85 - obstructionFactor;
-  const runoff = roofArea * rainfall * runoffCoefficient;
-  const structure = decideStructure(openSpace);
-  const rechargeVolume = Math.max(1, runoff / 1000 * 0.3);
-  const dimensions = calculateDimensions(structure, rechargeVolume);
-  const cost = calculateCost(structure, roofArea);
+  const rainfallOverride = rainfallInput.value ? Number.parseInt(rainfallInput.value, 10) : null;
+
+  // --- Try backend APIs first, fall back to local calculations ---
+  const [calcData, recommendData, costData] = await Promise.all([
+    apiFetch("/calculate", "POST", {
+      roofArea,
+      location,
+      dwellers,
+      ...(rainfallOverride ? { rainfall: rainfallOverride } : {}),
+    }),
+    apiFetch("/recommend", "POST", {
+      openSpace,
+      runoff: roofArea * (rainfallOverride || deriveRainfall(location)) * 0.8,
+    }),
+    apiFetch("/cost", "POST", {
+      structure: decideStructure(openSpace),
+      runoff: roofArea * (rainfallOverride || deriveRainfall(location)) * 0.8,
+    }),
+  ]);
+
+  // Resolved values — backend wins, local logic as fallback
+  const rainfall = calcData ? calcData.annualRainfallMm : (rainfallOverride || deriveRainfall(location));
+  const runoffCoefficient = 0.8;
+  const runoff = calcData ? calcData.runoffLiters : roofArea * rainfall * runoffCoefficient;
+  const aquifer = calcData ? calcData.aquifer : pickFrom(lookupSets.aquifers, hashSeed(location));
+  const depth = calcData ? calcData.groundwaterDepth : deriveGroundwaterDepth(location);
+  const policy = calcData ? calcData.policy : pickFrom(lookupSets.policies, hashSeed(location + "policy"));
+
+  const structure = recommendData ? recommendData.structure : decideStructure(openSpace);
+  const rechargeVolume = recommendData ? recommendData.rechargeVolumeM3 : Math.max(1, runoff / 1000 * 0.3);
+  const dimensions = recommendData ? recommendData.dimensions : calculateDimensions(structure, rechargeVolume);
+
+  const cost = costData ? costData.costRs : calculateCost(structure, roofArea);
+  const annualSavings = costData ? costData.annualSavingsRs : Math.round(runoff * 0.05);
+  const payback = costData ? costData.paybackYears : (cost / (runoff / 1000)).toFixed(1);
+
   const forecastRain = deriveForecastRainfall(location);
   const forecast = roofArea * forecastRain * runoffCoefficient;
-  const payback = (cost / (runoff / 1000)).toFixed(1);
   const credits = Math.round(runoff / 100);
   const twin = deriveDigitalTwin(location);
-  const policy = pickFrom(lookupSets.policies, hashSeed(location + "policy"));
 
   updateDashboard({
     name,
@@ -326,13 +370,14 @@ form.addEventListener("submit", (event) => {
   generateResults();
 });
 
-document.getElementById("estimate-roof").addEventListener("click", () => {
+document.getElementById("estimate-roof").addEventListener("click", async () => {
   const { estimatedArea, obstruction } = estimateRoofAreaFromPin(pinInput.value, locationInput.value);
   obstructionFactor = obstruction;
   roofAreaInput.value = estimatedArea.toFixed(1);
   mapHint.textContent = `Estimated roof area: ${estimatedArea.toFixed(0)} m² • Obstructions ${(obstruction * 100).toFixed(0)}%`;
   if (!rainfallInput.value) {
-    rainfallInput.value = deriveRainfall(locationInput.value);
+    const rainfallData = await apiFetch(`/rainfall?city=${encodeURIComponent(locationInput.value)}`);
+    rainfallInput.value = rainfallData ? rainfallData.annualRainfallMm : deriveRainfall(locationInput.value);
   }
 });
 
