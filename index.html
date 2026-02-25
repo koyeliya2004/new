@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RTRWH & Artificial Recharge Planner</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1 data-i18n="appTitle">Rooftop Rainwater Harvesting Planner</h1>
+        <p data-i18n="appSubtitle">
+          On-spot assessment for rooftop rainwater harvesting (RTRWH) and artificial recharge.
+        </p>
+      </div>
+      <div class="lang-select">
+        <label for="language" data-i18n="languageLabel">Language</label>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="bn">বাংলা</option>
+        </select>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2 data-i18n="assessmentTitle">Quick Assessment</h2>
+        <form id="assessment-form">
+          <div class="grid">
+            <label>
+              <span data-i18n="nameLabel">Name</span>
+              <input type="text" id="name" required placeholder="Riya" />
+            </label>
+            <label>
+              <span data-i18n="locationLabel">Location</span>
+              <input type="text" id="location" required placeholder="Kolkata, WB" />
+            </label>
+            <label>
+              <span data-i18n="dwellersLabel">Number of dwellers</span>
+              <input type="number" id="dwellers" min="1" value="4" />
+            </label>
+            <label>
+              <span data-i18n="roofAreaLabel">Roof area (m²)</span>
+              <input type="number" id="roof-area" min="1" step="0.1" value="110" />
+            </label>
+            <label>
+              <span data-i18n="openSpaceLabel">Available open space (m²)</span>
+              <input type="number" id="open-space" min="1" step="0.1" value="20" />
+            </label>
+            <label>
+              <span data-i18n="rainfallLabel">Annual rainfall (mm)</span>
+              <input type="number" id="rainfall" min="100" step="1" placeholder="Auto" />
+            </label>
+          </div>
+
+          <div class="map-block">
+            <div class="map">
+              <div class="pin"></div>
+              <span id="map-hint" data-i18n="mapHint">Drop a pin to auto-detect roof area (CV model)</span>
+            </div>
+            <div class="map-controls">
+              <label>
+                <span data-i18n="pinLabel">Pin coordinates</span>
+                <input type="text" id="pin" placeholder="22.5726, 88.3639" />
+              </label>
+              <button type="button" id="estimate-roof" class="secondary" data-i18n="estimateButton">
+                Estimate roof area
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="primary" data-i18n="generateButton">Generate assessment</button>
+        </form>
+      </section>
+
+      <section class="panel results" aria-live="polite">
+        <h2 data-i18n="resultsTitle">Personalized Outputs</h2>
+        <div class="cards">
+          <div class="card">
+            <h3 data-i18n="aquiferTitle">Principal aquifer</h3>
+            <p id="aquifer">Alluvium (sand & gravel)</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="depthTitle">Depth to groundwater</h3>
+            <p id="groundwater">12-18 m below ground level</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="rainfallTitle">Local rainfall</h3>
+            <p id="rainfall-output">1,100 mm annually</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="runoffTitle">Runoff generation</h3>
+            <p id="runoff">85,000 liters/year</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="structureTitle">Suggested RTRWH/AR structure</h3>
+            <p id="structure">Recharge pit</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="dimensionTitle">Recommended dimensions</h3>
+            <p id="dimensions">2.2 m × 2.2 m × 2 m</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="costTitle">Cost estimate & benefit</h3>
+            <p id="cost">₹24,000 • Payback in 2.1 seasons</p>
+          </div>
+          <div class="card highlight">
+            <h3 data-i18n="forecastTitle">Next 7 days forecast</h3>
+            <p id="forecast">Potential harvest: 4,500 liters</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 data-i18n="digitalTwinTitle">Geological Digital Twin</h2>
+        <div class="twin">
+          <div class="soil-layer">
+            <span data-i18n="soilLabel">Soil zone</span>
+          </div>
+          <div class="aquifer-layer">
+            <span data-i18n="aquiferLabel">Aquifer storage</span>
+            <div id="twin-depth">Available void: 32%</div>
+          </div>
+          <div class="bedrock-layer" data-i18n="bedrockLabel">Bedrock</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 data-i18n="communityTitle">Water Credit Leaderboard</h2>
+        <div class="leaderboard">
+          <div>
+            <p data-i18n="creditsLabel">Your water credits</p>
+            <strong id="credits">820</strong>
+          </div>
+          <button class="secondary" id="add-credits" data-i18n="addCredits">
+            Add to neighborhood score
+          </button>
+          <div class="score">
+            <p data-i18n="neighborhoodLabel">Neighborhood recharge score</p>
+            <strong id="neighborhood-score">12,400</strong>
+          </div>
+        </div>
+        <p class="impact" id="impact">You and 40 neighbors have recharged enough to fill 3 Olympic pools.</p>
+      </section>
+
+      <section class="panel">
+        <h2 data-i18n="arTitle">AR Placement Preview</h2>
+        <div class="ar-preview">
+          <div class="yard">
+            <div class="structure" id="ar-structure"></div>
+          </div>
+          <p data-i18n="arHint">
+            Visualize the proposed structure size in your yard before installation.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 data-i18n="implementationTitle">Implementation Loop</h2>
+        <div class="implementation">
+          <div class="card">
+            <h3 data-i18n="marketplaceTitle">Marketplace integration</h3>
+            <ul id="vendors">
+              <li>RainCharge Solutions • ⭐4.8</li>
+              <li>Jal Rakshak Engineers • ⭐4.6</li>
+              <li>Green Roof Tech • ⭐4.7</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 data-i18n="blueprintTitle">DIY Smart Blueprint</h3>
+            <p data-i18n="blueprintText">Download a localized bill of materials and layout.</p>
+            <button class="secondary" id="download-blueprint" data-i18n="downloadBlueprint">
+              Download blueprint (PDF)
+            </button>
+          </div>
+          <div class="card">
+            <h3 data-i18n="policyTitle">Policy & subsidy tracker</h3>
+            <p id="policy">Check state incentives: 25% subsidy on recharge pits.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p data-i18n="footerNote">
+        Calculations are indicative and based on CGWB guidance. Verify with local engineers before
+        construction.
+      </p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
