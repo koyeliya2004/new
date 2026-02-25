@@ -10,12 +10,14 @@ Calculate annual runoff and harvested water potential.
 
 **Request body (JSON)**
 
-| Field      | Type    | Required | Description                                   |
-|------------|---------|----------|-----------------------------------------------|
-| roofArea   | number  | Yes      | Roof area in m²                               |
-| location   | string  | Yes      | City or location name                         |
-| dwellers   | integer | No       | Number of household members (default: 4)      |
-| rainfall   | number  | No       | Annual rainfall in mm (derived if omitted)    |
+| Field                | Type    | Required | Description                                   |
+|----------------------|---------|----------|-----------------------------------------------|
+| roofArea / roof_area | number  | Yes      | Roof area in m² (camelCase or snake_case)     |
+| location             | string  | Yes      | City or location name                         |
+| dwellers             | integer | No       | Number of household members (default: 4)      |
+| rainfall             | number  | No       | Annual rainfall in mm (derived if omitted)    |
+
+> **Validation:** `roofArea` must be > 0; returns HTTP 400 otherwise.
 
 **Response (JSON)**
 
@@ -41,10 +43,14 @@ Recommend a recharge structure based on open space and runoff volume.
 
 **Request body (JSON)**
 
-| Field     | Type   | Required | Description                      |
-|-----------|--------|----------|----------------------------------|
-| openSpace | number | Yes      | Available open space in m²       |
-| runoff    | number | Yes      | Annual runoff in litres           |
+| Field                   | Type   | Required | Description                                               |
+|-------------------------|--------|----------|-----------------------------------------------------------|
+| openSpace / open_space  | number | No*      | Available open space in m²                                |
+| roofArea / roof_area    | number | No*      | Roof area in m² — open space estimated as 25% if openSpace absent |
+| runoff                  | number | No       | Annual runoff in litres (default: 50000)                  |
+
+> \* At least one of `openSpace` or `roofArea` should be supplied. If neither is provided, open space defaults to 10 m².
+> **Validation:** `openSpace` must be ≥ 0; returns HTTP 400 otherwise.
 
 **Response (JSON)**
 
@@ -69,10 +75,19 @@ Estimate installation cost and cost-benefit analysis.
 
 **Request body (JSON)**
 
-| Field     | Type   | Required | Description                               |
-|-----------|--------|----------|-------------------------------------------|
-| structure | string | Yes      | Structure type from `/recommend`          |
-| runoff    | number | Yes      | Annual runoff in litres                    |
+| Field            | Type   | Required | Description                                                          |
+|------------------|--------|----------|----------------------------------------------------------------------|
+| structure / type | string | No       | Full name or short alias (see table below). Default: "Recharge pit"  |
+| runoff           | number | No       | Annual runoff in litres (default: 50000)                             |
+
+**Short-name aliases for `type`**
+
+| Alias     | Resolves to      |
+|-----------|------------------|
+| `pit`     | Recharge pit     |
+| `trench`  | Recharge trench  |
+| `shaft`   | Recharge shaft   |
+| `tank`    | Storage tank     |
 
 **Response (JSON)**
 
