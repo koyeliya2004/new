@@ -23,6 +23,14 @@ const translations = {
     dimensionTitle: "Recommended dimensions",
     costTitle: "Cost estimate & benefit",
     forecastTitle: "Next 7 days forecast",
+    feasibilityTitle: "RTRWH Feasibility",
+    feasibleYes: "✅ Feasible — harvesting potential meets ≥20% of demand",
+    feasibleNo: "⚠️ Low potential — consider a storage tank or demand reduction",
+    lbRank: "Rank",
+    lbName: "Society / Colony",
+    lbCity: "City",
+    lbCredits: "Credits",
+    lbLiters: "Liters Recharged",
     digitalTwinTitle: "Geological Digital Twin",
     soilLabel: "Soil zone",
     aquiferLabel: "Aquifer storage",
@@ -66,6 +74,14 @@ const translations = {
     dimensionTitle: "अनुशंसित आयाम",
     costTitle: "लागत और लाभ",
     forecastTitle: "अगले 7 दिन का अनुमान",
+    feasibilityTitle: "RTRWH व्यवहार्यता",
+    feasibleYes: "✅ व्यवहार्य — संचयन क्षमता माँग का ≥20% पूरी करती है",
+    feasibleNo: "⚠️ सीमित संभावना — भंडारण टैंक या माँग कम करने पर विचार करें",
+    lbRank: "रैंक",
+    lbName: "सोसायटी / कॉलोनी",
+    lbCity: "शहर",
+    lbCredits: "क्रेडिट",
+    lbLiters: "रिचार्ज लीटर",
     digitalTwinTitle: "जियोलॉजिकल डिजिटल ट्विन",
     soilLabel: "मृदा क्षेत्र",
     aquiferLabel: "जलभृत भंडारण",
@@ -108,6 +124,14 @@ const translations = {
     dimensionTitle: "মাত্রা",
     costTitle: "খরচ ও লাভ",
     forecastTitle: "পরবর্তী ৭ দিনের পূর্বাভাস",
+    feasibilityTitle: "RTRWH সম্ভাব্যতা",
+    feasibleYes: "✅ সম্ভব — সংগ্রহ ক্ষমতা চাহিদার ≥২০% পূরণ করে",
+    feasibleNo: "⚠️ সীমিত সম্ভাবনা — স্টোরেজ ট্যাংক বা চাহিদা কমানো বিবেচনা করুন",
+    lbRank: "র‌্যাংক",
+    lbName: "সমিতি / কলোনি",
+    lbCity: "শহর",
+    lbCredits: "ক্রেডিট",
+    lbLiters: "পুনর্ভরণ লিটার",
     digitalTwinTitle: "জিওলজিকাল ডিজিটাল টুইন",
     soilLabel: "মাটি স্তর",
     aquiferLabel: "জলভান্ডার",
@@ -274,6 +298,13 @@ const updateDashboard = (results) => {
   document.getElementById("credits").textContent = results.credits.toLocaleString();
   document.getElementById("twin-depth").textContent = `Available void: ${results.twin}%`;
   document.getElementById("policy").textContent = results.policy;
+  const lang = languageSelect.value || "en";
+  const dict = translations[lang] || translations.en;
+  const feasBadge = document.querySelector("#feasibility .badge");
+  if (feasBadge) {
+    feasBadge.textContent = results.feasible ? dict.feasibleYes : dict.feasibleNo;
+    feasBadge.className = `badge ${results.feasible ? "badge-yes" : "badge-no"}`;
+  }
   updateARPreview(results.structure, results.rechargeVolume);
 };
 
@@ -330,6 +361,10 @@ const generateResults = async () => {
   const credits = Math.round(runoff / 100);
   const twin = deriveDigitalTwin(location);
 
+  // Local feasibility: runoff covers ≥20% of annual household demand
+  const waterDemand = dwellers * 150 * 365;
+  const feasible = calcData ? calcData.feasible : runoff >= waterDemand * 0.2;
+
   updateDashboard({
     name,
     dwellers,
@@ -348,6 +383,7 @@ const generateResults = async () => {
     credits,
     twin,
     policy,
+    feasible,
   });
 
   updateImpact(credits);
@@ -415,3 +451,55 @@ blueprintButton.addEventListener("click", () => {
 
 applyTranslations("en");
 generateResults();
+
+// ── Community leaderboard ────────────────────────────────────────────────────
+
+const FALLBACK_LEADERBOARD = [
+  { rank: 1, name: "Green Valley Society", city: "Pune", credits: 4200, litersRecharged: 420000 },
+  { rank: 2, name: "Eco Homes Block B", city: "Chennai", credits: 3800, litersRecharged: 380000 },
+  { rank: 3, name: "Sunrise Apartments", city: "Bangalore", credits: 3500, litersRecharged: 350000 },
+  { rank: 4, name: "Blue Lake Colony", city: "Kolkata", credits: 3200, litersRecharged: 320000 },
+  { rank: 5, name: "River View Complex", city: "Mumbai", credits: 2900, litersRecharged: 290000 },
+];
+
+const renderLeaderboard = (entries) => {
+  const tbody = document.getElementById("leaderboard-body");
+  if (!tbody) return;
+  tbody.innerHTML = entries
+    .map(
+      (e) =>
+        `<tr>
+          <td>${e.rank}</td>
+          <td>${e.name}</td>
+          <td>${e.city}</td>
+          <td>${e.credits.toLocaleString()}</td>
+          <td>${e.litersRecharged.toLocaleString()}</td>
+        </tr>`
+    )
+    .join("");
+};
+
+(async () => {
+  const data = await apiFetch("/leaderboard");
+  renderLeaderboard(data ? data.leaderboard : FALLBACK_LEADERBOARD);
+})();
+
+// ── Vendors ──────────────────────────────────────────────────────────────────
+
+const FALLBACK_VENDORS = [
+  { name: "RainCharge Solutions", rating: 4.8, city: "Pan-India" },
+  { name: "Jal Rakshak Engineers", rating: 4.6, city: "North India" },
+  { name: "Green Roof Tech", rating: 4.7, city: "South India" },
+  { name: "HydroEarth Services", rating: 4.5, city: "West India" },
+  { name: "Varshadhara Constructions", rating: 4.4, city: "East India" },
+];
+
+(async () => {
+  const data = await apiFetch("/vendors");
+  const list = data ? data.vendors : FALLBACK_VENDORS;
+  const ul = document.getElementById("vendors");
+  if (!ul) return;
+  ul.innerHTML = list
+    .map((v) => `<li>${v.name} • ⭐${v.rating} <span class="vendor-city">(${v.city})</span></li>`)
+    .join("");
+})();

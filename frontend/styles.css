@@ -254,3 +254,62 @@ footer {
     padding: 20px;
   }
 }
+
+/* Feasibility badge */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: #e2e8f0;
+  color: #2d3748;
+}
+
+.badge-yes {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.badge-no {
+  background: #fefcbf;
+  color: #744210;
+}
+
+/* Community leaderboard table */
+.leaderboard-table-wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+#leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+#leaderboard-table th,
+#leaderboard-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#leaderboard-table thead th {
+  background: var(--surface);
+  color: var(--secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+#leaderboard-table tbody tr:hover {
+  background: var(--accent);
+}
+
+/* Vendor city label */
+.vendor-city {
+  color: #718096;
+  font-size: 0.85rem;
+}
