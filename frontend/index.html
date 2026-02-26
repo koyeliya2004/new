@@ -106,6 +106,10 @@
             <h3 data-i18n="costTitle">Cost estimate & benefit</h3>
             <p id="cost">₹24,000 • Payback in 2.1 seasons</p>
           </div>
+          <div class="card">
+            <h3 data-i18n="feasibilityTitle">RTRWH Feasibility</h3>
+            <p id="feasibility"><span class="badge">—</span></p>
+          </div>
           <div class="card highlight">
             <h3 data-i18n="forecastTitle">Next 7 days forecast</h3>
             <p id="forecast">Potential harvest: 4,500 liters</p>
@@ -143,6 +147,20 @@
           </div>
         </div>
         <p class="impact" id="impact">You and 40 neighbors have recharged enough to fill 3 Olympic pools.</p>
+        <div class="leaderboard-table-wrap">
+          <table id="leaderboard-table">
+            <thead>
+              <tr>
+                <th data-i18n="lbRank">Rank</th>
+                <th data-i18n="lbName">Society / Colony</th>
+                <th data-i18n="lbCity">City</th>
+                <th data-i18n="lbCredits">Credits</th>
+                <th data-i18n="lbLiters">Liters Recharged</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
       </section>
 
       <section class="panel">
@@ -162,11 +180,7 @@
         <div class="implementation">
           <div class="card">
             <h3 data-i18n="marketplaceTitle">Marketplace integration</h3>
-            <ul id="vendors">
-              <li>RainCharge Solutions • ⭐4.8</li>
-              <li>Jal Rakshak Engineers • ⭐4.6</li>
-              <li>Green Roof Tech • ⭐4.7</li>
-            </ul>
+            <ul id="vendors"></ul>
           </div>
           <div class="card">
             <h3 data-i18n="blueprintTitle">DIY Smart Blueprint</h3>
