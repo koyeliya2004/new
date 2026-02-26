@@ -105,3 +105,19 @@ Runoff coefficient of **0.8** is the CGWB standard value for rooftop surfaces.
 
 > Calculations are indicative and based on CGWB guidance. Verify with local engineers before construction.
 
+---
+
+## Deployment on Render
+
+Steps:
+1. Push code to GitHub
+2. Go to https://render.com
+3. Create new Web Service
+4. Select repository
+5. Set:
+   - Root Directory: `backend`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `python app.py`
+6. Deploy and get live URL
+7. Update `BASE_URL` in `frontend/app.js` with your Render service URL
+

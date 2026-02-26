@@ -128,8 +128,10 @@ const translations = {
   },
 };
 
-// Base URL for the Flask backend — falls back gracefully if the backend is offline
-const API_BASE = "http://localhost:5000";
+// Base URL for the Flask backend — update to your Render deployment URL after deploying
+const BASE_URL = "https://YOUR-RENDER-URL.onrender.com";
+// Falls back gracefully if the backend is offline
+const API_BASE = BASE_URL;
 
 /**
  * Call the Flask API. Returns parsed JSON on success or null on any network/HTTP error,
