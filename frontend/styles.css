@@ -253,4 +253,209 @@ footer {
   main {
     padding: 20px;
   }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Hero section ─────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: 40px;
+  border-radius: 16px;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 2fr 1fr;
+  align-items: center;
+}
+
+.hero h2 {
+  margin: 0 0 12px;
+  font-size: 1.6rem;
+  color: white;
+}
+
+.hero p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.hero-badges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.hero-badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.hero-badge span {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.hero-badge small {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.badge-green {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.badge-yellow {
+  background: #fefcbf;
+  color: #744210;
+}
+
+.badge-red {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+
+.card-detail {
+  font-size: 0.85rem;
+  color: #4a5568;
+  margin: 8px 0 0;
+}
+
+/* ── Demand bar ───────────────────────────────────────────────── */
+.demand-bar-wrap {
+  background: #e2e8f0;
+  border-radius: 8px;
+  height: 14px;
+  margin: 10px 0 6px;
+  overflow: hidden;
+}
+
+.demand-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #1b6f4f, #48bb78);
+  border-radius: 8px;
+  transition: width 0.6s ease;
+}
+
+/* ── Impact grid ──────────────────────────────────────────────── */
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.impact-stat {
+  background: var(--surface);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.impact-stat span {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.impact-stat small {
+  font-size: 0.78rem;
+  color: #4a5568;
+}
+
+/* ── Leaderboard table ────────────────────────────────────────── */
+.leaderboard-table-wrap {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.leaderboard-table th {
+  background: var(--surface);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  font-weight: 600;
+  color: var(--secondary);
+  white-space: nowrap;
+}
+
+.leaderboard-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f4f8;
+}
+
+.leaderboard-table tbody tr:hover td {
+  background: var(--accent);
+}
+
+.leaderboard-table tbody tr:first-child td {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ── Vendor grid ──────────────────────────────────────────────── */
+.vendors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.vendor-card {
+  background: var(--surface);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vendor-city {
+  font-size: 0.82rem;
+  color: #4a5568;
+}
+
+.vendor-rating {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 4px;
+}
+
+/* ── Feasibility card states ──────────────────────────────────── */
+#feasibility-card.feasible-yes {
+  border-color: #9ae6b4;
+  background: #f0fff4;
+}
+
+#feasibility-card.feasible-no {
+  border-color: #faf089;
+  background: #fffff0;
 }

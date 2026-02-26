@@ -317,6 +317,42 @@ def vendors():
     return jsonify({"vendors": VENDORS})
 
 
+@app.route("/forecast", methods=["GET"])
+def forecast():
+    """
+    Simulate a 7-day rainfall and harvest forecast for a location.
+
+    Query params:
+      city       str     City / location name
+      roof_area  float   Roof area in m²
+
+    Response (JSON):
+      city, roofAreaM2, days[], totalForecastLitres
+    """
+    city = request.args.get("city", "").strip()
+    try:
+        roof_area = float(request.args.get("roof_area", 100))
+    except (TypeError, ValueError):
+        roof_area = 100.0
+
+    annual_mm = _get_rainfall(city)
+    seed = _hash_seed(city or "forecast")
+
+    # Generate 7 deterministic daily rain values that sum to ~monsoon weekly average
+    weekly_avg_mm = annual_mm / 52
+    days = []
+    for i in range(7):
+        # Daily rain is drawn from a range centred at 2x the weekly average
+        # (the factor of 2 spreads values between 0 and 4× average, reflecting monsoon variability)
+        day_seed = (seed + i * 37) % 100
+        rain_mm = round((day_seed / 100) * weekly_avg_mm * 2, 1)
+        harvest = round(roof_area * rain_mm * RUNOFF_COEFFICIENT)
+        days.append({"day": i + 1, "rainMm": rain_mm, "harvestLitres": harvest})
+
+    total = sum(d["harvestLitres"] for d in days)
+    return jsonify({"city": city, "roofAreaM2": roof_area, "days": days, "totalForecastLitres": total})
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
