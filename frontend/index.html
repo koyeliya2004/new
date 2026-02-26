@@ -20,11 +20,27 @@
           <option value="en">English</option>
           <option value="hi">हिन्दी</option>
           <option value="bn">বাংলা</option>
+          <option value="ta">தமிழ்</option>
+          <option value="te">తెలుగు</option>
+          <option value="mr">मराठी</option>
         </select>
       </div>
     </header>
 
     <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h2 data-i18n="heroHeading">Every rooftop can be a water source.</h2>
+          <p data-i18n="heroSubtext">Get a personalised plan for rooftop rainwater harvesting and artificial groundwater recharge — based on your location, geology and local rainfall data.</p>
+        </div>
+        <div class="hero-badges">
+          <div class="hero-badge"><span>🌧️</span><small data-i18n="heroB1">City-specific rainfall</small></div>
+          <div class="hero-badge"><span>💧</span><small data-i18n="heroB2">CGWB-based calculations</small></div>
+          <div class="hero-badge"><span>🌍</span><small data-i18n="heroB3">Carbon offset tracking</small></div>
+          <div class="hero-badge"><span>📐</span><small data-i18n="heroB4">Structure blueprints</small></div>
+        </div>
+      </section>
+
       <section class="panel">
         <h2 data-i18n="assessmentTitle">Quick Assessment</h2>
         <form id="assessment-form">
@@ -78,6 +94,22 @@
       <section class="panel results" aria-live="polite">
         <h2 data-i18n="resultsTitle">Personalized Outputs</h2>
         <div class="cards">
+          <div class="card" id="feasibility-card">
+            <h3 data-i18n="feasibilityTitle">Feasibility Check</h3>
+            <p id="feasibility-status"><span class="badge badge-green">FEASIBLE ✓</span></p>
+            <p class="card-detail" id="feasibility-details">Run assessment to check</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="demandTitle">Water Demand vs Supply</h3>
+            <div class="demand-bar-wrap">
+              <div class="demand-bar" id="demand-bar" style="width:40%"></div>
+            </div>
+            <p class="card-detail" id="demand-text">Run assessment to see</p>
+          </div>
+          <div class="card">
+            <h3 data-i18n="carbonTitle">Carbon Offset</h3>
+            <p id="carbon-offset">—</p>
+          </div>
           <div class="card">
             <h3 data-i18n="aquiferTitle">Principal aquifer</h3>
             <p id="aquifer">Alluvium (sand & gravel)</p>
@@ -143,6 +175,44 @@
           </div>
         </div>
         <p class="impact" id="impact">You and 40 neighbors have recharged enough to fill 3 Olympic pools.</p>
+        <div class="impact-grid">
+          <div class="impact-stat">
+            <span id="impact-pools">—</span>
+            <small data-i18n="impactPools">Olympic pools</small>
+          </div>
+          <div class="impact-stat">
+            <span id="impact-carbon">—</span>
+            <small data-i18n="impactCarbon">kg CO₂ offset</small>
+          </div>
+          <div class="impact-stat">
+            <span id="impact-households">40+</span>
+            <small data-i18n="impactHouseholds">Households</small>
+          </div>
+          <div class="impact-stat">
+            <span id="impact-savings">—</span>
+            <small data-i18n="impactSavings">Water savings</small>
+          </div>
+        </div>
+        <div class="leaderboard-table-wrap">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th data-i18n="lbName">Society / Name</th>
+                <th data-i18n="lbCity">City</th>
+                <th data-i18n="lbCredits">Credits</th>
+                <th data-i18n="lbLitres">Litres Recharged</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <tr><td>1</td><td>Green Valley Society</td><td>Pune</td><td>4,200</td><td>4,20,000</td></tr>
+              <tr><td>2</td><td>Eco Homes Block B</td><td>Chennai</td><td>3,800</td><td>3,80,000</td></tr>
+              <tr><td>3</td><td>Sunrise Apartments</td><td>Bangalore</td><td>3,500</td><td>3,50,000</td></tr>
+              <tr><td>4</td><td>Blue Lake Colony</td><td>Kolkata</td><td>3,200</td><td>3,20,000</td></tr>
+              <tr><td>5</td><td>River View Complex</td><td>Mumbai</td><td>2,900</td><td>2,90,000</td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section class="panel">
@@ -162,17 +232,17 @@
         <div class="implementation">
           <div class="card">
             <h3 data-i18n="marketplaceTitle">Marketplace integration</h3>
-            <ul id="vendors">
-              <li>RainCharge Solutions • ⭐4.8</li>
-              <li>Jal Rakshak Engineers • ⭐4.6</li>
-              <li>Green Roof Tech • ⭐4.7</li>
-            </ul>
+            <div class="vendors-grid" id="vendors-grid">
+              <div class="vendor-card"><strong>RainCharge Solutions</strong><span class="vendor-city">📍 Pan-India</span><span class="vendor-rating">⭐ 4.8</span></div>
+              <div class="vendor-card"><strong>Jal Rakshak Engineers</strong><span class="vendor-city">📍 North India</span><span class="vendor-rating">⭐ 4.6</span></div>
+              <div class="vendor-card"><strong>Green Roof Tech</strong><span class="vendor-city">📍 South India</span><span class="vendor-rating">⭐ 4.7</span></div>
+            </div>
           </div>
           <div class="card">
             <h3 data-i18n="blueprintTitle">DIY Smart Blueprint</h3>
             <p data-i18n="blueprintText">Download a localized bill of materials and layout.</p>
             <button class="secondary" id="download-blueprint" data-i18n="downloadBlueprint">
-              Download blueprint (PDF)
+              Download blueprint
             </button>
           </div>
           <div class="card">
