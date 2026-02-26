@@ -128,8 +128,8 @@ const translations = {
   },
 };
 
-// Base URL for the Flask backend — update to your Render deployment URL after deploying
-const BASE_URL = "https://YOUR-RENDER-URL.onrender.com";
+// Base URL for the Flask backend — empty string uses relative URLs (same origin)
+const BASE_URL = "";
 // Falls back gracefully if the backend is offline
 const API_BASE = BASE_URL;
 

@@ -7,11 +7,13 @@ import json
 import math
 import os
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+_FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
 # ---------------------------------------------------------------------------
 # Data loading
@@ -315,6 +317,27 @@ def leaderboard():
 def vendors():
     """Return a list of local vendors."""
     return jsonify({"vendors": VENDORS})
+
+
+# ---------------------------------------------------------------------------
+# Frontend static file serving
+# ---------------------------------------------------------------------------
+
+
+@app.route("/")
+def index():
+    """Serve the frontend application."""
+    return send_from_directory(_FRONTEND_DIR, "index.html")
+
+
+@app.route("/<path:filename>")
+def static_files(filename):
+    """Serve frontend static assets (CSS, JS, etc.).
+
+    send_from_directory uses werkzeug's safe_join internally, which prevents
+    directory traversal attacks by rejecting any path that escapes _FRONTEND_DIR.
+    """
+    return send_from_directory(_FRONTEND_DIR, filename)
 
 
 # ---------------------------------------------------------------------------
