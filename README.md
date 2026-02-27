@@ -107,7 +107,19 @@ Runoff coefficient of **0.8** is the CGWB standard value for rooftop surfaces.
 
 ---
 
-## Deployment on Render
+## Running Tests
+
+```bash
+cd backend
+pip install -r requirements.txt
+pytest test_app.py -v
+```
+
+All 20 backend tests should pass.
+
+---
+
+
 
 Steps:
 1. Push code to GitHub

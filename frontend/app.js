@@ -128,9 +128,14 @@ const translations = {
   },
 };
 
-// Base URL for the Flask backend — update to your Render deployment URL after deploying
-const BASE_URL = "https://YOUR-RENDER-URL.onrender.com";
-// Falls back gracefully if the backend is offline
+// Base URL for the Flask backend.
+// - Local development: defaults to http://localhost:5000
+// - Deployed: set BACKEND_URL in a meta tag or window variable, or update this constant
+//   e.g. const BASE_URL = "https://your-app.onrender.com";
+const BASE_URL = window.BACKEND_URL
+  || (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+      ? "http://localhost:5000"
+      : "");
 const API_BASE = BASE_URL;
 
 /**
@@ -413,5 +418,36 @@ blueprintButton.addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 
+const loadLeaderboard = async () => {
+  const data = await apiFetch("/leaderboard");
+  if (!data) return;
+  const tbody = document.getElementById("leaderboard-rows");
+  if (tbody) {
+    tbody.innerHTML = data.leaderboard
+      .map(
+        (e) =>
+          `<tr><td>${e.rank}</td><td>${e.name}</td><td>${e.city}</td><td>${e.credits.toLocaleString()}</td><td>${e.litersRecharged.toLocaleString()}</td></tr>`
+      )
+      .join("");
+  }
+  const poolsEl = document.getElementById("community-pools");
+  if (poolsEl) {
+    poolsEl.textContent = `Combined community impact: ${data.totalLitersRecharged.toLocaleString()} liters recharged (${data.olympicPoolsEquivalent} Olympic pools).`;
+  }
+};
+
+const loadVendors = async () => {
+  const data = await apiFetch("/vendors");
+  if (!data) return;
+  const vendorList = document.getElementById("vendors");
+  if (vendorList) {
+    vendorList.innerHTML = data.vendors
+      .map((v) => `<li>${v.name} &bull; ⭐${v.rating} &bull; ${v.city}</li>`)
+      .join("");
+  }
+};
+
 applyTranslations("en");
 generateResults();
+loadLeaderboard();
+loadVendors();

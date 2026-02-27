@@ -317,6 +317,12 @@ def vendors():
     return jsonify({"vendors": VENDORS})
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    """Health check endpoint."""
+    return jsonify({"status": "ok"})
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
